@@ -25,7 +25,7 @@ func createTables() {
 		CREATE TABLE IF NOT EXISTS tanks (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT NOT NULL,
-			location TEXT,
+			location TEXT DEFAULT '',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
@@ -53,8 +53,8 @@ func createTables() {
 			tank_id INTEGER NOT NULL,
 			strain TEXT NOT NULL,
 			pair_date TEXT NOT NULL,
-			expected_birth_date TEXT DEFAULT '',
-			notes TEXT DEFAULT '',
+			expected_birth_date TEXT,
+			notes TEXT,
 			status TEXT DEFAULT 'breeding',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (tank_id) REFERENCES tanks(id)

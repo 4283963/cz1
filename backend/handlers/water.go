@@ -14,7 +14,27 @@ import (
 func CreateWaterRecord(c *gin.Context) {
 	var record models.WaterRecord
 	if err := c.ShouldBindJSON(&record); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请求数据格式不正确：" + err.Error()})
+		return
+	}
+
+	if record.TankID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请提供有效的鱼缸ID"})
+		return
+	}
+	if record.Temperature <= 0 || record.Temperature > 50 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "温度值不在有效范围内"})
+		return
+	}
+	if record.PH <= 0 || record.PH > 14 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "pH值不在有效范围内"})
+		return
+	}
+
+	var count int
+	database.DB.QueryRow("SELECT COUNT(*) FROM tanks WHERE id = ?", record.TankID).Scan(&count)
+	if count == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "鱼缸不存在"})
 		return
 	}
 
@@ -23,7 +43,7 @@ func CreateWaterRecord(c *gin.Context) {
 		record.TankID, record.Temperature, record.PH,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存失败：" + err.Error()})
 		return
 	}
 

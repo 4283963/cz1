@@ -33,6 +33,10 @@
       <div class="modal">
         <h2>{{ editingId ? '编辑繁育记录' : '新增繁育登记' }}</h2>
 
+        <div v-if="errorMsg" class="error-msg">
+          {{ errorMsg }}
+        </div>
+
         <div class="form-group">
           <label>鱼缸</label>
           <select v-model="form.tank_id">
@@ -90,6 +94,7 @@ const tanks = ref([])
 const breedingRecords = ref([])
 const showModal = ref(false)
 const editingId = ref(null)
+const errorMsg = ref('')
 
 const form = ref({
   tank_id: 1,
@@ -124,6 +129,7 @@ const loadBreedingRecords = async () => {
 
 const openAddModal = () => {
   editingId.value = null
+  errorMsg.value = ''
   form.value = {
     tank_id: tanks.value[0]?.id || 1,
     strain: '',
@@ -137,6 +143,7 @@ const openAddModal = () => {
 
 const editRecord = (record) => {
   editingId.value = record.id
+  errorMsg.value = ''
   form.value = { ...record }
   showModal.value = true
 }
@@ -147,19 +154,28 @@ const closeModal = () => {
 }
 
 const submitForm = async () => {
+  errorMsg.value = ''
+
   if (!form.value.strain || !form.value.pair_date) {
-    alert('请填写品系和配对日期')
+    errorMsg.value = '请填写品系和配对日期'
     return
   }
 
-  if (editingId.value) {
-    await updateBreedingRecord(editingId.value, form.value)
-  } else {
-    await createBreedingRecord(form.value)
+  if (typeof form.value.tank_id === 'string') {
+    form.value.tank_id = parseInt(form.value.tank_id)
   }
 
-  closeModal()
-  loadBreedingRecords()
+  try {
+    if (editingId.value) {
+      await updateBreedingRecord(editingId.value, form.value)
+    } else {
+      await createBreedingRecord(form.value)
+    }
+    closeModal()
+    loadBreedingRecords()
+  } catch (err) {
+    errorMsg.value = err.message || '提交失败，请重试'
+  }
 }
 
 const deleteRecord = async (id) => {

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"guppy-breeding/database"
@@ -10,10 +11,43 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var dateRegex = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+
+func validateBreedingRecord(record *models.BreedingRecord) string {
+	if record.TankID <= 0 {
+		return "请选择鱼缸"
+	}
+	if record.Strain == "" {
+		return "请填写品系名称"
+	}
+	if record.PairDate == "" {
+		return "请填写配对日期"
+	}
+	if !dateRegex.MatchString(record.PairDate) {
+		return "配对日期格式不正确，请使用 YYYY-MM-DD 格式"
+	}
+	if record.ExpectedBirthDate != "" && !dateRegex.MatchString(record.ExpectedBirthDate) {
+		return "预计产仔日期格式不正确，请使用 YYYY-MM-DD 格式"
+	}
+
+	var count int
+	err := database.DB.QueryRow("SELECT COUNT(*) FROM tanks WHERE id = ?", record.TankID).Scan(&count)
+	if err != nil || count == 0 {
+		return "所选鱼缸不存在"
+	}
+
+	return ""
+}
+
 func CreateBreedingRecord(c *gin.Context) {
 	var record models.BreedingRecord
 	if err := c.ShouldBindJSON(&record); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请求数据格式不正确：" + err.Error()})
+		return
+	}
+
+	if msg := validateBreedingRecord(&record); msg != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 
@@ -26,7 +60,7 @@ func CreateBreedingRecord(c *gin.Context) {
 		record.TankID, record.Strain, record.PairDate, record.ExpectedBirthDate, record.Notes, record.Status,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存失败：" + err.Error()})
 		return
 	}
 
@@ -105,13 +139,18 @@ func UpdateBreedingRecord(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的记录ID"})
 		return
 	}
 
 	var record models.BreedingRecord
 	if err := c.ShouldBindJSON(&record); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "请求数据格式不正确：" + err.Error()})
+		return
+	}
+
+	if msg := validateBreedingRecord(&record); msg != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 
@@ -120,7 +159,7 @@ func UpdateBreedingRecord(c *gin.Context) {
 		record.TankID, record.Strain, record.PairDate, record.ExpectedBirthDate, record.Notes, record.Status, id,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新失败：" + err.Error()})
 		return
 	}
 
