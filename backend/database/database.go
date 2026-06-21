@@ -64,7 +64,57 @@ func createTables() {
 		log.Fatalf("failed to create breeding_records table: %v", err)
 	}
 
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS alert_config (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			temp_min REAL DEFAULT 24.0,
+			temp_max REAL DEFAULT 28.0,
+			consecutive_count INTEGER DEFAULT 3,
+			notify_enabled INTEGER DEFAULT 0,
+			webhook_url TEXT DEFAULT '',
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		log.Fatalf("failed to create alert_config table: %v", err)
+	}
+
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS alert_logs (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			tank_id INTEGER NOT NULL,
+			alert_type TEXT NOT NULL,
+			message TEXT NOT NULL,
+			notified INTEGER DEFAULT 0,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		log.Fatalf("failed to create alert_logs table: %v", err)
+	}
+
 	insertInitialTanks()
+	insertInitialAlertConfig()
+}
+
+func insertInitialAlertConfig() {
+	var count int
+	err := DB.QueryRow("SELECT COUNT(*) FROM alert_config").Scan(&count)
+	if err != nil {
+		log.Printf("error counting alert_config: %v", err)
+		return
+	}
+	if count > 0 {
+		return
+	}
+	_, err = DB.Exec(
+		"INSERT INTO alert_config (temp_min, temp_max, consecutive_count, notify_enabled, webhook_url) VALUES (?, ?, ?, ?, ?)",
+		24.0, 28.0, 3, 0, "",
+	)
+	if err != nil {
+		log.Printf("error inserting initial alert config: %v", err)
+	}
+	log.Println("Initial alert config inserted")
 }
 
 func insertInitialTanks() {

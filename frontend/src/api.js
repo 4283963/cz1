@@ -70,3 +70,24 @@ export async function deleteBreedingRecord(id) {
     method: 'DELETE'
   })
 }
+
+export async function getAlertConfig() {
+  return request(`${API_BASE}/alert/config`)
+}
+
+export async function updateAlertConfig(data) {
+  return request(`${API_BASE}/alert/config`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function getAlertStatus() {
+  return request(`${API_BASE}/alert/status`)
+}
+
+export async function triggerAlertNotify() {
+  return request(`${API_BASE}/alert/notify`, {
+    method: 'POST'
+  })
+}

@@ -50,6 +50,14 @@ func main() {
 			breeding.PUT("/:id", handlers.UpdateBreedingRecord)
 			breeding.DELETE("/:id", handlers.DeleteBreedingRecord)
 		}
+
+		alert := api.Group("/alert")
+		{
+			alert.GET("/config", handlers.GetAlertConfig)
+			alert.PUT("/config", handlers.UpdateAlertConfig)
+			alert.GET("/status", handlers.GetAllTankAlerts)
+			alert.POST("/notify", handlers.TriggerAlertNotify)
+		}
 	}
 
 	log.Println("Server starting on :8080")

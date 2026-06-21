@@ -379,3 +379,107 @@ body {
   font-size: 13px;
   border: 1px solid #fde2e2;
 }
+
+.success-msg {
+  background: #f0f9eb;
+  color: #67c23a;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  border: 1px solid #e1f3d8;
+}
+
+.alert-banner {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  animation: pulseBanner 1.5s infinite;
+}
+
+@keyframes pulseBanner {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+.alert-light {
+  float: right;
+  font-size: 16px;
+  opacity: 0.8;
+  transition: all 0.3s;
+}
+
+.alert-light.on {
+  animation: blinkLight 0.6s infinite;
+  opacity: 1;
+}
+
+@keyframes blinkLight {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.9); }
+}
+
+.tank-alert {
+  position: relative;
+  border: 2px solid #e74c3c;
+  animation: pulseBorder 1s infinite;
+}
+
+.tank-alert.alert-high {
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3), 0 4px 20px rgba(231, 76, 60, 0.25);
+}
+
+.tank-alert.alert-low {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3), 0 4px 20px rgba(52, 152, 219, 0.25);
+  animation: pulseBorderBlue 1s infinite;
+}
+
+@keyframes pulseBorder {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3), 0 4px 20px rgba(231, 76, 60, 0.25); }
+  50% { box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.4), 0 4px 28px rgba(231, 76, 60, 0.4); }
+}
+
+@keyframes pulseBorderBlue {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3), 0 4px 20px rgba(52, 152, 219, 0.25); }
+  50% { box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.4), 0 4px 28px rgba(52, 152, 219, 0.4); }
+}
+
+.alert-text {
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: #fef0f0;
+  color: #e74c3c;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tank-alert.alert-low .alert-text {
+  background: #ebf5fb;
+  color: #3498db;
+}
+
+.temp-alert {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.history-values span {
+  transition: color 0.2s;
+}
